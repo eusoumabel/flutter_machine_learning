@@ -1,17 +1,45 @@
-# machine_learning
+# Flutter Machine Learning
 
-A new Flutter project.
+It's an app that uses Firebase ML Kit and TensorFlow to capture information using Machine Learning and shows it to the user.
+
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+To use this app, all you need is flutter 2.0 installed and running on your machine. Clone this project to your computer and opens a emulator or run on your android device using: 
 
-A few resources to get you started if this is your first Flutter project:
+```sh
+$ flutter pub get
+```
+```sh
+$ flutter run
+```
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+<!--## Screenshots
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# flutter_machine_learning
+* The screenshots were taken from an Android device.
+
+-->
+
+## TODO
+
+- [ ] Image Labeling
+- [ ] Barcode Scanner
+- [ ] Text Recognition
+- [ ] Face Detection
+- [ ] Text Translation and Language Identification
+- [ ] Face Detection
+- [ ] Image Classification
+- [ ] Object Detection
+- [ ] Human Pose Estimation
+- [ ] Image Segmentation
+- [ ] Dog Breed Classification
+- [ ] Fruts Recognition
+
+
+## Authors
+
+* **Ester Mabel** - *GitHub* - [GitHub](https://github.com/estermabel)
+
+## Acknowledgments
+
+* I built this app as a way to learn new things about Flutter and Machine Learning. It was a way to spend some time doing something nice and practicing my abilities and learning new ones. It was a fun project to make and I'm planning on keep making projects like this one.
