@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:machine_learning/pages/BarcodeScanner/barcode_scanner_page.dart';
 import 'package:machine_learning/pages/ImageLabeling/image_labeling_page.dart';
 
+import 'TextRecognition/text_recognition_page.dart';
+
 class HomePage extends StatefulWidget {
   final CameraDescription camera;
   const HomePage({Key? key, required this.camera}) : super(key: key);
@@ -59,8 +61,13 @@ class _HomePageState extends State<HomePage> {
               ListTile(
                 title: Text('Text Recognition'),
                 trailing: Icon(Icons.keyboard_arrow_right),
-                enabled: false,
-                onTap: () {},
+                enabled: true,
+                onTap: () => navitateTo(
+                  TextRecognitionPage(
+                    camera: widget.camera,
+                    title: 'Text Recognition',
+                  ),
+                ),
               ),
               ListTile(
                 title: Text('Face Detection'),
