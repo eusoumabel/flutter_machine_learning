@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:machine_learning/pages/BarcodeScanner/barcode_scanner_page.dart';
 import 'package:machine_learning/pages/ImageLabeling/image_labeling_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -48,7 +49,12 @@ class _HomePageState extends State<HomePage> {
                 title: Text('Barcode Scanner'),
                 trailing: Icon(Icons.keyboard_arrow_right),
                 enabled: true,
-                onTap: () {},
+                onTap: () => navitateTo(
+                  BarcodeScannerPage(
+                    camera: widget.camera,
+                    title: 'Barcode Scanner',
+                  ),
+                ),
               ),
               ListTile(
                 title: Text('Text Recognition'),

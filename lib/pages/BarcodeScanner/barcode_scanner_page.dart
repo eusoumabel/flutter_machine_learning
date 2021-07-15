@@ -7,41 +7,42 @@ import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:machine_learning/utils/helpers.dart';
 
-class ImageLabelingPage extends StatefulWidget {
+class BarcodeScannerPage extends StatefulWidget {
   final CameraDescription camera;
   final String title;
-  const ImageLabelingPage({
+  const BarcodeScannerPage({
     Key? key,
     required this.camera,
     required this.title,
   }) : super(key: key);
 
   @override
-  _ImageLabelingPageState createState() => _ImageLabelingPageState();
+  _BarcodeScannerPageState createState() => _BarcodeScannerPageState();
 }
 
-class _ImageLabelingPageState extends State<ImageLabelingPage> {
+class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
+  late final BarcodeScanner barcodeScanner;
+  late ImagePicker imagePicker;
+  late Future<File> imageFile;
   late CameraController controller;
   late CameraImage _liveImage;
-  late ImageLabeler imageLabeler;
-  late ImagePicker imagePicker;
   File? _image;
+  String? result = '';
   bool isBusy = false;
   bool isLive = false;
-
-  List<String> result = [];
 
   @override
   void initState() {
     super.initState();
-    imageLabeler = GoogleMlKit.vision.imageLabeler();
     imagePicker = ImagePicker();
+    barcodeScanner = GoogleMlKit.vision.barcodeScanner();
+    controller = CameraController(widget.camera, ResolutionPreset.max);
   }
 
   @override
   void dispose() {
     super.dispose();
-    imageLabeler.close();
+    barcodeScanner.close();
   }
 
   _getImageFromCamera() async {
@@ -49,13 +50,18 @@ class _ImageLabelingPageState extends State<ImageLabelingPage> {
       isLive = false;
       controller.stopImageStream();
     });
-    PickedFile? pickedFile = await imagePicker.getImage(
+
+    PickedFile? image = await imagePicker.getImage(
       source: ImageSource.camera,
     );
+
     setState(() {
-      _image = pickedFile != null ? File(pickedFile.path) : _image;
+      _image = File(image!.path);
+
+      if (_image != null) {
+        doBarcodeScanning(inputImage: InputImage.fromFile(_image!));
+      }
     });
-    doImageLabeling(inputImage: InputImage.fromFile(_image!));
   }
 
   _getImageFromGallery() async {
@@ -63,13 +69,17 @@ class _ImageLabelingPageState extends State<ImageLabelingPage> {
       isLive = false;
       controller.stopImageStream();
     });
-    PickedFile? pickedFile = await imagePicker.getImage(
+    PickedFile? image = await imagePicker.getImage(
       source: ImageSource.gallery,
     );
+
     setState(() {
-      _image = _image = pickedFile != null ? File(pickedFile.path) : _image;
+      _image = File(image!.path);
+
+      if (_image != null) {
+        doBarcodeScanning(inputImage: InputImage.fromFile(_image!));
+      }
     });
-    doImageLabeling(inputImage: InputImage.fromFile(_image!));
   }
 
   _getLiveCamera() async {
@@ -80,40 +90,74 @@ class _ImageLabelingPageState extends State<ImageLabelingPage> {
       }
       controller.startImageStream((image) {
         if (!isBusy) {
-          isBusy = true;
-          _liveImage = image;
-          isLive = true;
-          doImageLabeling(inputImage: getLiveInputImage());
+          setState(() {
+            isBusy = true;
+            _liveImage = image;
+            isLive = true;
+            doBarcodeScanning(inputImage: getLiveInputImage(_liveImage));
+          });
         }
       });
     });
+    setState(() {});
   }
 
-  doImageLabeling({required InputImage inputImage}) async {
-    result.clear();
+  doBarcodeScanning({required InputImage inputImage}) async {
+    result = '';
     final _inputImage = inputImage;
-    final List<ImageLabel> labels =
-        await imageLabeler.processImage(_inputImage);
-    result.clear();
-    for (ImageLabel label in labels) {
-      final String text = label.label;
-      final double confidence = label.confidence * 100;
-      result.add("$text - ${confidence.toStringAsFixed(2)}%");
+
+    final List<Barcode> barcodes =
+        await barcodeScanner.processImage(_inputImage);
+    for (Barcode barcode in barcodes) {
+      final BarcodeType type = barcode.type;
+      final Rect? boundingBox = barcode.value.boundingBox;
+      final String? displayValue = barcode.value.displayValue;
+      final String? rawValue = barcode.value.rawValue;
+
+      switch (type) {
+        case BarcodeType.wifi:
+          BarcodeWifi barcodeWifi = barcode.value as BarcodeWifi;
+          setState(() {
+            result = barcodeWifi.password;
+          });
+          break;
+        case BarcodeType.url:
+          BarcodeUrl barcodeUrl = barcode.value as BarcodeUrl;
+          setState(() {
+            result = barcodeUrl.rawValue;
+          });
+          break;
+        case BarcodeType.email:
+          BarcodeEmail barcodeEmail = barcode.value as BarcodeEmail;
+          setState(() {
+            result = barcodeEmail.displayValue;
+          });
+          break;
+        case BarcodeType.phone:
+          BarcodePhone barcodePhone = barcode.value as BarcodePhone;
+          setState(() {
+            result = barcodePhone.rawValue;
+          });
+          break;
+        default:
+          setState(() {
+            result = 'Barcode not identified.';
+          });
+          break;
+      }
     }
-    setState(() {
-      isBusy = false;
-    });
+    isBusy = false;
   }
 
-  InputImage getLiveInputImage() {
+  InputImage getLiveInputImage(CameraImage image) {
     final WriteBuffer allBytes = WriteBuffer();
-    for (var plane in _liveImage.planes) {
+    for (Plane plane in image.planes) {
       allBytes.putUint8List(plane.bytes);
     }
     final bytes = allBytes.done().buffer.asUint8List();
 
     final Size imageSize =
-        Size(_liveImage.width.toDouble(), _liveImage.height.toDouble());
+        Size(image.width.toDouble(), image.height.toDouble());
 
     final InputImageRotation imageRotation =
         InputImageRotationMethods.fromRawValue(
@@ -121,11 +165,11 @@ class _ImageLabelingPageState extends State<ImageLabelingPage> {
             InputImageRotation.Rotation_0deg;
 
     final InputImageFormat inputImageFormat =
-        InputImageFormatMethods.fromRawValue(_liveImage.format.raw) ??
+        InputImageFormatMethods.fromRawValue(image.format.raw) ??
             InputImageFormat.NV21;
 
-    final planeData = _liveImage.planes.map(
-      (var plane) {
+    final planeData = image.planes.map(
+      (Plane plane) {
         return InputImagePlaneMetadata(
           bytesPerRow: plane.bytesPerRow,
           height: plane.height,
@@ -155,7 +199,6 @@ class _ImageLabelingPageState extends State<ImageLabelingPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          isLive = false;
           Helpers.showCameraOptionsDialog(
             context: context,
             camera: _getImageFromCamera,
@@ -203,18 +246,11 @@ class _ImageLabelingPageState extends State<ImageLabelingPage> {
                 ),
                 Container(
                   margin: EdgeInsets.only(top: 20),
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: result.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(
-                          result[index],
-                          textAlign: TextAlign.center,
-                        ),
-                      );
-                    },
+                  child: ListTile(
+                    title: Text(
+                      result!,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
               ],
