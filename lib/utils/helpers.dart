@@ -1,29 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 class Helpers {
-  static getImageFromCamera({File? image}) async {
-    ImagePicker imagePicker = ImagePicker();
-    PickedFile? pickedFile = await imagePicker.getImage(
-      source: ImageSource.camera,
-    );
-
-    image = pickedFile != null ? File(pickedFile.path) : image;
-    return image;
-  }
-
-  static getImageFromGallery({File? image}) async {
-    ImagePicker imagePicker = ImagePicker();
-    PickedFile? pickedFile = await imagePicker.getImage(
-      source: ImageSource.camera,
-    );
-
-    image = pickedFile != null ? File(pickedFile.path) : image;
-    return image;
-  }
-
   static showCameraOptionsDialog({
     required BuildContext context,
     Function? camera,
@@ -37,13 +14,13 @@ class Helpers {
           "Choose how to capture the image!",
         ),
         content: Text(
-          "Do you want to choose a picture from your gallery, take one or live camera?",
+          "Do you want to choose a picture from your gallery, take one or use the live camera?",
         ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              live!;
+              live!();
             },
             child: Text(
               "Live",
@@ -53,7 +30,7 @@ class Helpers {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              camera!;
+              camera!();
             },
             child: Text(
               "Camera",
@@ -63,7 +40,7 @@ class Helpers {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              gallery!;
+              gallery!();
             },
             child: Text(
               "Gallery",
