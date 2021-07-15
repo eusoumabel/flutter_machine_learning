@@ -22,7 +22,7 @@ $ flutter run
 
 ## TODO
 
-- [ ] Image Labeling
+- [X] Image Labeling
 - [ ] Barcode Scanner
 - [ ] Text Recognition
 - [ ] Face Detection
