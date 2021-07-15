@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Machile Learning"),
+        title: Text("Machine Learning"),
         centerTitle: true,
       ),
       body: Padding(
