@@ -88,12 +88,6 @@ class _HomePageState extends State<HomePage> {
                 onTap: () {},
               ),
               ListTile(
-                title: Text('Face Detection'),
-                trailing: Icon(Icons.keyboard_arrow_right),
-                enabled: false,
-                onTap: () {},
-              ),
-              ListTile(
                 title: Text('Image Classification'),
                 trailing: Icon(Icons.keyboard_arrow_right),
                 enabled: false,
