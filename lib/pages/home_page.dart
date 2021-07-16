@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:machine_learning/pages/BarcodeScanner/barcode_scanner_page.dart';
+import 'package:machine_learning/pages/FaceDetection/face_detection_page.dart';
 import 'package:machine_learning/pages/ImageLabeling/image_labeling_page.dart';
 
 import 'TextRecognition/text_recognition_page.dart';
@@ -72,8 +73,13 @@ class _HomePageState extends State<HomePage> {
               ListTile(
                 title: Text('Face Detection'),
                 trailing: Icon(Icons.keyboard_arrow_right),
-                enabled: false,
-                onTap: () {},
+                enabled: true,
+                onTap: () => navitateTo(
+                  FaceDetectionPage(
+                    camera: widget.camera,
+                    title: 'Face Detection',
+                  ),
+                ),
               ),
               ListTile(
                 title: Text('Text Translation and Language Identification'),
