@@ -11,40 +11,49 @@ class Helpers {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          "Choose how to capture the image!",
+          "Choose how to capture the image.",
         ),
         content: Text(
-          "Do you want to choose a picture from your gallery, take one or use the live camera?",
+          "How do you want to capture the image?",
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              live!();
-            },
-            child: Text(
-              "Live",
-              style: TextStyle(color: Colors.blue[900]),
+          Visibility(
+            visible: (live != null),
+            child: TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                live!();
+              },
+              child: Text(
+                "Live",
+                style: TextStyle(color: Colors.blue[900]),
+              ),
             ),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              camera!();
-            },
-            child: Text(
-              "Camera",
-              style: TextStyle(color: Colors.blue[900]),
+          Visibility(
+            visible: (camera != null),
+            child: TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                camera!();
+              },
+              child: Text(
+                "Camera",
+                style: TextStyle(color: Colors.blue[900]),
+              ),
             ),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              gallery!();
-            },
-            child: Text(
-              "Gallery",
-              style: TextStyle(color: Colors.blue[900]),
+          Visibility(
+            visible: (gallery != null),
+            child: TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                gallery!();
+              },
+              child: Text(
+                "Gallery",
+                style: TextStyle(color: Colors.blue[900]),
+              ),
             ),
           ),
         ],
