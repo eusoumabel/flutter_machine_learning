@@ -1,17 +1,19 @@
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:machine_learning/pages/FaceDetection/face_detection_live_page.dart';
 import 'package:machine_learning/utils/helpers.dart';
 
 class FaceDetectionPage extends StatefulWidget {
-  final CameraDescription camera;
+  final List<CameraDescription> cameras;
   final String title;
   const FaceDetectionPage({
     Key? key,
-    required this.camera,
+    required this.cameras,
     required this.title,
   }) : super(key: key);
 
@@ -98,6 +100,18 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
     });
   }
 
+  _getLiveCamera() {
+    return Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FaceDetectionLivePage(
+          cameras: widget.cameras,
+          title: "Face Detection Live",
+        ),
+      ),
+    );
+  }
+
   imageNull() {
     if (image == null) {
       return 200.0;
@@ -117,7 +131,7 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
             context: context,
             camera: _getImageFromCamera,
             gallery: _getImageFromGallery,
-            // live: _getLiveCamera,
+            live: _getLiveCamera,
           );
         },
         child: Icon(Icons.camera_alt),
@@ -139,18 +153,24 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
                   child:
                       // isLive
                       //     ? controller.value.isInitialized
-                      //         ? AspectRatio(
-                      //             aspectRatio: controller.value.aspectRatio,
-                      //             child: CameraPreview(controller),
+                      //         ? FittedBox(
+                      //             child: Container(
+                      //               width: _liveImage.width.toDouble(),
+                      //               height: _liveImage.height.toDouble() * 2,
+                      //               child: AspectRatio(
+                      //                 aspectRatio: controller.value.aspectRatio,
+                      //                 child: CameraPreview(controller),
+                      //               ),
+                      //             ),
                       //           )
                       //         : Icon(
                       //             Icons.camera_alt,
                       //             color: Colors.grey[500],
-                      //           ) :
-
-                      _image != null
+                      // )
+                      // :
+                      _image != null && image != null
                           ? FittedBox(
-                              child: SizedBox(
+                              child: Container(
                                 width: image.width.toDouble(),
                                 height: image.height.toDouble(),
                                 child: CustomPaint(
@@ -216,5 +236,46 @@ class FacePainter extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
     return true;
+  }
+}
+
+class FaceDetectorPainter extends CustomPainter {
+  FaceDetectorPainter(this.absoluteImageSize, this.faces, this.camDire2);
+
+  final Size absoluteImageSize;
+  final List<Face> faces;
+  CameraLensDirection camDire2;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double scaleX = size.width / absoluteImageSize.width;
+    final double scaleY = size.height / absoluteImageSize.height;
+
+    final Paint paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0
+      ..color = Colors.red;
+
+    for (Face face in faces) {
+      canvas.drawRect(
+        Rect.fromLTRB(
+          camDire2 == CameraLensDirection.front
+              ? (absoluteImageSize.width - face.boundingBox.right) * scaleX
+              : face.boundingBox.left * scaleX,
+          face.boundingBox.top * scaleY,
+          camDire2 == CameraLensDirection.front
+              ? (absoluteImageSize.width - face.boundingBox.left) * scaleX
+              : face.boundingBox.right * scaleX,
+          face.boundingBox.bottom * scaleY,
+        ),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(FaceDetectorPainter oldDelegate) {
+    return oldDelegate.absoluteImageSize != absoluteImageSize ||
+        oldDelegate.faces != faces;
   }
 }

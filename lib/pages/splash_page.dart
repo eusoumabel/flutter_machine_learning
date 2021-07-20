@@ -29,7 +29,7 @@ class _SplashPageState extends State<SplashPage> {
     Navigator.of(context).pushReplacement(
       CupertinoPageRoute(
         builder: (context) => HomePage(
-          camera: widget.cameras[0],
+          cameras: widget.cameras,
         ),
       ),
     );

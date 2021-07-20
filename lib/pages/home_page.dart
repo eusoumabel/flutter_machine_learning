@@ -7,8 +7,8 @@ import 'package:machine_learning/pages/ImageLabeling/image_labeling_page.dart';
 import 'TextRecognition/text_recognition_page.dart';
 
 class HomePage extends StatefulWidget {
-  final CameraDescription camera;
-  const HomePage({Key? key, required this.camera}) : super(key: key);
+  final List<CameraDescription> cameras;
+  const HomePage({Key? key, required this.cameras}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -43,7 +43,7 @@ class _HomePageState extends State<HomePage> {
                 enabled: true,
                 onTap: () => navitateTo(
                   ImageLabelingPage(
-                    camera: widget.camera,
+                    camera: widget.cameras[0],
                     title: 'Image Labeling',
                   ),
                 ),
@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
                 enabled: true,
                 onTap: () => navitateTo(
                   BarcodeScannerPage(
-                    camera: widget.camera,
+                    camera: widget.cameras[0],
                     title: 'Barcode Scanner',
                   ),
                 ),
@@ -65,7 +65,7 @@ class _HomePageState extends State<HomePage> {
                 enabled: true,
                 onTap: () => navitateTo(
                   TextRecognitionPage(
-                    camera: widget.camera,
+                    camera: widget.cameras[0],
                     title: 'Text Recognition',
                   ),
                 ),
@@ -76,7 +76,7 @@ class _HomePageState extends State<HomePage> {
                 enabled: true,
                 onTap: () => navitateTo(
                   FaceDetectionPage(
-                    camera: widget.camera,
+                    cameras: widget.cameras,
                     title: 'Face Detection',
                   ),
                 ),
