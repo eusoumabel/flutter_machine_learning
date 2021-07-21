@@ -17,14 +17,14 @@ class FaceDetectionLivePage extends StatefulWidget {
 }
 
 class _FaceDetectionLivePageState extends State<FaceDetectionLivePage> {
-  late CameraController? controller;
+  late CameraController controller;
   bool isBusy = false;
   late FaceDetector detector;
   late Size size;
   late List<Face> faces;
-  late CameraImage img;
   late CameraDescription description;
   CameraLensDirection camDirec = CameraLensDirection.front;
+  late CameraImage img;
 
   @override
   void initState() {
@@ -35,25 +35,22 @@ class _FaceDetectionLivePageState extends State<FaceDetectionLivePage> {
 
   @override
   void dispose() {
-    controller!.dispose();
+    controller.dispose();
     detector.close();
     super.dispose();
   }
 
   initializeCamera() async {
-    controller = CameraController(description, ResolutionPreset.medium);
+    controller = CameraController(description, ResolutionPreset.max);
     detector = GoogleMlKit.vision.faceDetector();
-    await controller!.initialize().then((_) {
+    await controller.initialize().then((_) {
       if (!mounted) {
         return;
       }
-      controller!.startImageStream((image) {
-        if (!isBusy) {
-          isBusy = true;
-          img = image;
-          doFaceDetectionOnFrame(image);
-        }
-      });
+      controller.startImageStream((image) => {
+            if (!isBusy)
+              {isBusy = true, img = image, doFaceDetectionOnFrame(image)}
+          });
     });
     setState(() {});
   }
@@ -92,10 +89,8 @@ class _FaceDetectionLivePageState extends State<FaceDetectionLivePage> {
       planeData: planeData,
     );
 
-    final inputImage = InputImage.fromBytes(
-      bytes: bytes,
-      inputImageData: inputImageData,
-    );
+    final inputImage =
+        InputImage.fromBytes(bytes: bytes, inputImageData: inputImageData);
     return inputImage;
   }
 
@@ -111,13 +106,13 @@ class _FaceDetectionLivePageState extends State<FaceDetectionLivePage> {
   Widget buildResult() {
     if (_scanResults == null ||
         controller == null ||
-        !controller!.value.isInitialized) {
+        !controller.value.isInitialized) {
       return Text('');
     }
 
     final Size imageSize = Size(
-      controller!.value.previewSize!.height,
-      controller!.value.previewSize!.width,
+      controller.value.previewSize!.height,
+      controller.value.previewSize!.width,
     );
     isBusy = false;
     CustomPainter painter = FaceDetectorPainter(
@@ -139,17 +134,21 @@ class _FaceDetectionLivePageState extends State<FaceDetectionLivePage> {
       description = widget.cameras[0];
     }
 
-    await controller!.stopImageStream();
-    await controller!.dispose();
+    await controller.stopImageStream();
 
     setState(() {
-      controller = null;
+      controller = new CameraController(
+        description,
+        ResolutionPreset.max,
+      );
       initializeCamera();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    size = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -157,39 +156,34 @@ class _FaceDetectionLivePageState extends State<FaceDetectionLivePage> {
         actions: [
           IconButton(
             onPressed: _toggleCameraDirection,
-            icon: Icon(
-              Icons.cameraswitch,
-            ),
+            icon: Icon(Icons.cameraswitch),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(0.0),
-          child: Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                controller!.value.isInitialized
-                    ? Stack(
-                        children: [
-                          Container(
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height - 80,
-                            child: AspectRatio(
-                              aspectRatio: controller!.value.aspectRatio,
-                              child: CameraPreview(controller!),
-                            ),
-                          ),
-                          buildResult(),
-                        ],
+      backgroundColor: Colors.black,
+      body: Container(
+        margin: EdgeInsets.only(top: 0),
+        color: Colors.black,
+        child: Stack(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              child: Container(
+                child: (controller.value.isInitialized)
+                    ? AspectRatio(
+                        aspectRatio: controller.value.aspectRatio,
+                        child: CameraPreview(controller),
                       )
-                    : Container(
-                        child: CircularProgressIndicator(),
-                      ),
-              ],
+                    : Container(),
+              ),
             ),
-          ),
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              child: buildResult(),
+            ),
+          ],
         ),
       ),
     );
@@ -197,7 +191,11 @@ class _FaceDetectionLivePageState extends State<FaceDetectionLivePage> {
 }
 
 class FaceDetectorPainter extends CustomPainter {
-  FaceDetectorPainter(this.absoluteImageSize, this.faces, this.camDire2);
+  FaceDetectorPainter(
+    this.absoluteImageSize,
+    this.faces,
+    this.camDire2,
+  );
 
   final Size absoluteImageSize;
   final List<Face> faces;
