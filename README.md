@@ -26,7 +26,7 @@ $ flutter run
 - [X] Barcode Scanner
 - [X] Text Recognition
 - [X] Face Detection
-- [ ] Text Translation and Language Identification
+- [X] Text Translation and Language Identification* (Doesn't support Null Safety)
 - [ ] Image Classification
 - [ ] Object Detection
 - [ ] Human Pose Estimation
