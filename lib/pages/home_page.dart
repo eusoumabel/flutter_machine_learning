@@ -5,6 +5,7 @@ import 'package:machine_learning/pages/FaceDetection/face_detection_page.dart';
 import 'package:machine_learning/pages/ImageLabeling/image_labeling_page.dart';
 
 import 'TextRecognition/text_recognition_page.dart';
+import 'TextTranslation/text_translation.dart';
 
 class HomePage extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -84,8 +85,13 @@ class _HomePageState extends State<HomePage> {
               ListTile(
                 title: Text('Text Translation and Language Identification'),
                 trailing: Icon(Icons.keyboard_arrow_right),
-                enabled: false,
-                onTap: () {},
+                enabled: true,
+                onTap: () => navitateTo(
+                  TextTranslationPage(
+                    cameras: widget.cameras,
+                    title: 'Text Translations',
+                  ),
+                ),
               ),
               ListTile(
                 title: Text('Image Classification'),
