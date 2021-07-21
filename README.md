@@ -25,7 +25,7 @@ $ flutter run
 - [X] Image Labeling
 - [X] Barcode Scanner
 - [X] Text Recognition
-- [ ] Face Detection
+- [X] Face Detection
 - [ ] Text Translation and Language Identification
 - [ ] Face Detection
 - [ ] Image Classification
