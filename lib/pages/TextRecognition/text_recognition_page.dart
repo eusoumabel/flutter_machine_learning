@@ -100,6 +100,7 @@ class _TextRecognitionPageState extends State<TextRecognitionPage> {
           child: Center(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
                   height: 200,
@@ -123,7 +124,7 @@ class _TextRecognitionPageState extends State<TextRecognitionPage> {
                 Container(
                   margin: EdgeInsets.only(top: 20),
                   child: ListTile(
-                    title: Text(
+                    title: SelectableText(
                       result,
                       textAlign: TextAlign.left,
                     ),

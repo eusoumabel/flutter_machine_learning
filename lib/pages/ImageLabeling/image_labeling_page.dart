@@ -8,11 +8,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:machine_learning/utils/helpers.dart';
 
 class ImageLabelingPage extends StatefulWidget {
-  final CameraDescription camera;
+  final List<CameraDescription> cameras;
   final String title;
   const ImageLabelingPage({
     Key? key,
-    required this.camera,
+    required this.cameras,
     required this.title,
   }) : super(key: key);
 
@@ -25,6 +25,8 @@ class _ImageLabelingPageState extends State<ImageLabelingPage> {
   late CameraImage _liveImage;
   late ImageLabeler imageLabeler;
   late ImagePicker imagePicker;
+  late CameraDescription description;
+  CameraLensDirection camDirec = CameraLensDirection.front;
   File? _image;
   bool isBusy = false;
   bool isLive = false;
@@ -34,6 +36,7 @@ class _ImageLabelingPageState extends State<ImageLabelingPage> {
   @override
   void initState() {
     super.initState();
+    description = widget.cameras[1];
     imageLabeler = GoogleMlKit.vision.imageLabeler();
     imagePicker = ImagePicker();
   }
@@ -73,7 +76,7 @@ class _ImageLabelingPageState extends State<ImageLabelingPage> {
   }
 
   _getLiveCamera() async {
-    controller = CameraController(widget.camera, ResolutionPreset.max);
+    controller = CameraController(description, ResolutionPreset.max);
     await controller.initialize().then((_) {
       if (!mounted) {
         return;
@@ -86,6 +89,26 @@ class _ImageLabelingPageState extends State<ImageLabelingPage> {
           doImageLabeling(inputImage: getLiveInputImage());
         }
       });
+    });
+  }
+
+  void _toggleCameraDirection() async {
+    if (camDirec == CameraLensDirection.back) {
+      camDirec = CameraLensDirection.front;
+      description = widget.cameras[1];
+    } else {
+      camDirec = CameraLensDirection.back;
+      description = widget.cameras[0];
+    }
+
+    await controller.stopImageStream();
+
+    setState(() {
+      controller = new CameraController(
+        description,
+        ResolutionPreset.max,
+      );
+      _getLiveCamera();
     });
   }
 
@@ -116,8 +139,7 @@ class _ImageLabelingPageState extends State<ImageLabelingPage> {
         Size(_liveImage.width.toDouble(), _liveImage.height.toDouble());
 
     final InputImageRotation imageRotation =
-        InputImageRotationMethods.fromRawValue(
-                widget.camera.sensorOrientation) ??
+        InputImageRotationMethods.fromRawValue(description.sensorOrientation) ??
             InputImageRotation.Rotation_0deg;
 
     final InputImageFormat inputImageFormat =
@@ -152,6 +174,16 @@ class _ImageLabelingPageState extends State<ImageLabelingPage> {
       appBar: AppBar(
         title: Text(widget.title),
         centerTitle: true,
+        actions: isLive
+            ? controller.value.isInitialized
+                ? [
+                    IconButton(
+                      onPressed: _toggleCameraDirection,
+                      icon: Icon(Icons.cameraswitch),
+                    ),
+                  ]
+                : []
+            : [],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

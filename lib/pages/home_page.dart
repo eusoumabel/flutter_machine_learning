@@ -43,7 +43,7 @@ class _HomePageState extends State<HomePage> {
                 enabled: true,
                 onTap: () => navitateTo(
                   ImageLabelingPage(
-                    camera: widget.cameras[0],
+                    cameras: widget.cameras,
                     title: 'Image Labeling',
                   ),
                 ),
@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
                 enabled: true,
                 onTap: () => navitateTo(
                   BarcodeScannerPage(
-                    camera: widget.cameras[0],
+                    cameras: widget.cameras,
                     title: 'Barcode Scanner',
                   ),
                 ),

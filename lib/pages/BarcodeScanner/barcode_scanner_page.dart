@@ -8,11 +8,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:machine_learning/utils/helpers.dart';
 
 class BarcodeScannerPage extends StatefulWidget {
-  final CameraDescription camera;
+  final List<CameraDescription> cameras;
   final String title;
   const BarcodeScannerPage({
     Key? key,
-    required this.camera,
+    required this.cameras,
     required this.title,
   }) : super(key: key);
 
@@ -26,6 +26,8 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
   late Future<File> imageFile;
   late CameraController controller;
   late CameraImage _liveImage;
+  late CameraDescription description;
+  CameraLensDirection camDirec = CameraLensDirection.front;
   File? _image;
   String? result = '';
   bool isBusy = false;
@@ -35,8 +37,9 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
   void initState() {
     super.initState();
     imagePicker = ImagePicker();
+    description = widget.cameras[1];
     barcodeScanner = GoogleMlKit.vision.barcodeScanner();
-    controller = CameraController(widget.camera, ResolutionPreset.max);
+    controller = CameraController(description, ResolutionPreset.max);
   }
 
   @override
@@ -83,7 +86,7 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
   }
 
   _getLiveCamera() async {
-    controller = CameraController(widget.camera, ResolutionPreset.max);
+    controller = CameraController(description, ResolutionPreset.max);
     await controller.initialize().then((_) {
       if (!mounted) {
         return;
@@ -100,6 +103,26 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
       });
     });
     setState(() {});
+  }
+
+  void _toggleCameraDirection() async {
+    if (camDirec == CameraLensDirection.back) {
+      camDirec = CameraLensDirection.front;
+      description = widget.cameras[1];
+    } else {
+      camDirec = CameraLensDirection.back;
+      description = widget.cameras[0];
+    }
+
+    await controller.stopImageStream();
+
+    setState(() {
+      controller = new CameraController(
+        description,
+        ResolutionPreset.max,
+      );
+      _getLiveCamera();
+    });
   }
 
   doBarcodeScanning({required InputImage inputImage}) async {
@@ -160,8 +183,7 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
         Size(image.width.toDouble(), image.height.toDouble());
 
     final InputImageRotation imageRotation =
-        InputImageRotationMethods.fromRawValue(
-                widget.camera.sensorOrientation) ??
+        InputImageRotationMethods.fromRawValue(description.sensorOrientation) ??
             InputImageRotation.Rotation_0deg;
 
     final InputImageFormat inputImageFormat =
@@ -196,6 +218,16 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
       appBar: AppBar(
         title: Text(widget.title),
         centerTitle: true,
+        actions: isLive
+            ? controller.value.isInitialized
+                ? [
+                    IconButton(
+                      onPressed: _toggleCameraDirection,
+                      icon: Icon(Icons.cameraswitch),
+                    ),
+                  ]
+                : []
+            : [],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
