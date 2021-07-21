@@ -27,7 +27,6 @@ $ flutter run
 - [X] Text Recognition
 - [X] Face Detection
 - [ ] Text Translation and Language Identification
-- [ ] Face Detection
 - [ ] Image Classification
 - [ ] Object Detection
 - [ ] Human Pose Estimation
