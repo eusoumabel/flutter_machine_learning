@@ -28,7 +28,7 @@ class _TextTranslationPageState extends State<TextTranslationPage> {
   void initState() {
     super.initState();
     // modelManager = FirebaseLanguage.instance.modelManager();
-    // modelManager.downloadModel(SupportedLanguages.Urdu);
+    // modelManager.downloadModel(SupportedLanguages.Portuguese);
     // languageIdentifier = FirebaseLanguage.instance.languageIdentifier();
   }
 
